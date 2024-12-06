@@ -2,16 +2,6 @@ from colorama import Fore,Back,Style,init
 import csv
 init()
 
-"""
-TAGS - Teacher Assisted Grading System
-OBJECTIVE:
-The purpose of this program is to help the teacher to store the student record and automatically computed the average by this program.
-and help the student to easily check their grades in this program. They don't need to find his/her Teacher (if the teacher is hiding from them)
-Feature:
-Teacher can add a student and it will automatically compute the average grade and they will know if the student pass or failed
-student can View grades
-
-"""
 
 students = {} #to store student record
 users_login = {}  #to store user and password for teacher
