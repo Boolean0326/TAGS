@@ -45,6 +45,7 @@ The TAGS stands for Teacher-Assistant Grading System is a Python Script designed
 - View a list of all students currently stored in the system.
 #### Search Student
 - Enter the student's name to view their record.
+- View who Pass or Fail.
 #### Add Student
 - Specify how many students you want to add.
 - For each student:
