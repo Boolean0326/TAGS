@@ -10,10 +10,12 @@ users_login = {}  #to store user and password for teacher
 
 #For Admin Use
 def admin():
-    while True: #for the loop
+    print(Fore.GREEN + '\n---Welcome Admin!---' + Style.RESET_ALL)
+    #Create a loop
+    while True: 
         print('\n1. View Registered Name \n2. Register Account \n3. delete Account \n4. File Management \n5. Back')
         try:
-            choice = int(input('\nPlease Enter Choice 1/2/3/4/5/6: \n'))
+            choice = int(input('\nPlease Enter Choice 1/2/3/4/5: \n'))
         
             if choice == 1:
                 if not users_login:
@@ -21,7 +23,7 @@ def admin():
                 else:
                     print('\n--Teachers Account--\n')
                     for user,password in users_login.items():
-                            print(f'User: {user} \nPass: {password}')
+                            print(f'User: {user} \nPass: {password}\n')
             elif choice == 2:
                 register()
                 csv_adminrecord()
@@ -42,7 +44,7 @@ def admin():
                             print(registered_account.read())
                     elif choice == '3':
                         csv_Restoreadmin()
-                        print(Fore.GREEN + '\nAccounts Succesfully Restored!' + Style.RESET_ALL)
+                        print('\nAccounts Succesfully Restored!')
                     elif choice == '4':
                         break
                     else:
@@ -65,32 +67,60 @@ def Teacher():
     if users_login[username] == password:
         print(Fore.GREEN + "\nLogin successful!" + Style.RESET_ALL)
     else:
-        print("Incorrect password. Please try again.")
+        print(Fore.RED + "\nIncorrect password. Please try again." + Style.RESET_ALL)
         return
     while True:
         try:           
             print(Fore.GREEN + f"\n---Welcome, Teacher {username}.---\n" + Style.RESET_ALL)
             print('Please Select Option:\n')
-            print('1. View Student List \n2. Search a student \n3. Add Student \n4. Delete Student \n5. File Management \n6. Back')
-            choice = int(input('Please Enter choice 1/2/3/4: \n'))
+            print('1. View Student List \n2. Search a student \n3. Add Student \n4. Delete Student \n5. Manage File \n6. Back')
+            choice = int(input('\nPlease Enter choice 1/2/3/4: \n'))
             if choice == 1:
                 if not students:
-                    print(Fore.RED + 'No Record' + Style.RESET_ALL)
+                    print(Fore.RED + "No Record" + Style.RESET_ALL)
                 else:
-                    print(Fore.CYAN + '\nAll the Students and their Grade:' + Style.RESET_ALL)
-                    for name,info in students.items(): #view student name, grades and average
-                        print(f'\nName: {name}')
-                        print('Subjects and Grades:')
-                        for subject,grade in info['subjects'].items():
-                            print(f'{subject}: {grade}')
-                            print(f'Average: {info['average']:.1f}')
-                            print(f'Final Grade: {info['letter_grade']}')
+                    # Separate students into 'pass' and 'fail' categories based on their average
+                    passed_students = {name: info for name, info in students.items() if info["average"] >= 75}
+                    failed_students = {name: info for name, info in students.items() if info["average"] < 75}
+
+                    # Display all students
+                    print(Fore.CYAN + "\nAll the Students and their Grades:" + Style.RESET_ALL)
+                    for student_id, info in students.items():
+                        print(f"\nStudent No.: {student_id}")
+                        print(f"Name: {info["name"]}")
+                        print("Subjects and Grades:")
+                        for subject, grade in info["subjects"].items():
+                            print(f"{subject}: {grade}")
+                        print(f"Average: {info['average']:.1f}")
+                        print(f"Final Grade: {info['letter_grade']}")
+                    total = len(students)
+                    print(Fore.LIGHTYELLOW_EX + f'\nYour total no. of students are {total}' + Style.RESET_ALL)
+
+                    # Display passed students
+                    print(Fore.GREEN + "\nPassed Students:" + Style.RESET_ALL)
+                    for student_id, info in passed_students.items():
+                        print(f"\nStudent No.: {student_id}") 
+                        print(f"Name: {info["name"]}")
+                        print(f"Average: {info['average']:.1f}")
+                        print(f"Final Grade: {info['letter_grade']}")
+                    total = len(passed_students)
+                    print(Fore.GREEN + f'\nTotal No. of Passing Students: {total}' + Style.RESET_ALL)
+
+                    # Display failed students
+                    print(Fore.RED + "\nFailed Students:" + Style.RESET_ALL)
+                    for student_id, info in failed_students.items():
+                        print(f"\nStudent No.: {student_id}")
+                        print(f"\nName: {info["name"]}")
+                        print(f"Average: {info['average']:.1f}")
+                        print(f"Final Grade: {info['letter_grade']}")
+                    total = len(failed_students)
+                    print(Fore.RED + f'\nTotal No. of Failed Students: {total}' + Style.RESET_ALL)
             elif choice == 2:
                 Search_student()
             elif choice == 3:
                 Add_Student()
             elif choice == 4:
-                student_delete = input('Please Enter the name of the student\n').lower()
+                student_delete = int(input('Please Enter the Student No. \n'))
                 if student_delete in students:
                     students.pop(student_delete)
                     print(Fore.LIGHTGREEN_EX + 'Student Removed on the list' + Style.RESET_ALL)
@@ -124,12 +154,13 @@ def Teacher():
 def register():
     while True:
         print("\n--- Register ---")
-        username = input("Enter a username: ").strip()
+        username = input("Enter a username: ").strip().lower()
         if username in users_login:
             print("Username already exists. Try a different one.")
             return
-        password = input("Enter a password: ").strip()
-        users_login[username] = password #storing account in dictionary
+        password = input("Enter a password: ").strip().lower()
+        #storing account in dictionary
+        users_login[username] = password 
         print(Fore.GREEN + f"\nRegistration for Teacher {username} is successful!.\n" + Style.RESET_ALL)
         break
 # for Deleting User-log in Account
@@ -159,29 +190,30 @@ def Grade_Letter(average):
             return 'Failed'
 # Create a function to view the student grade by searching the student name
 def Search_student():
-    student_name = input("\nEnter the name of the student to view grades: ")
+    student_num = input("\nEnter the name of the student no. to view grades: ")
     found = False
     csv_file = 'Teacher.csv'
     with open(csv_file, 'r') as file:
         reader = csv.reader(file)
-        next(reader)  # Skip the header
+        # Skip the header
+        next(reader)
         
-        print(f"\nGrades for {student_name}:")
+        print(f"\nGrades for {student_num}:")
         for row in reader:
-            name, subject, grade, average, final_grade = row
-            if name.lower() == student_name.lower():
-                print(f"  Subject: {subject}, Grade: {grade}, Average: {average}, Final Grade: {final_grade}")
+            student_no, name, subject, grade, average, final_grade = row
+            if student_no == student_num:
+                print(f"Student No: {student_no} Name: {name} Subject: {subject}, Grade: {grade}, Average: {average}, Final Grade: {final_grade}")
                 found = True
     
     if not found:
-        print(f"No records found for student: {student_name}")
+        print(f"No records found for student: {student_no}")
 # Function for student to view their grade
 def Student_View():
     while True:
         Search_student()
         choice = input("\nDo you want to view another student's grades? (yes/no): ").lower()
         if choice == 'yes':
-            Search_student()
+            continue
         else:
             print("back.")
             break
@@ -189,8 +221,22 @@ def Student_View():
 def Add_Student():
     num_students = int(input("Enter the number of students: "))         
     for hm_students in range(num_students):
-        name = input("\nEnter the student's name: ")
-        num_subjects = int(input(f"How many subjects does {name} have? "))
+        while True:
+            try:
+                student_ID = int(input('\nPlease Enter Student number: '))
+                if student_ID in students:
+                    raise ValueError ('Student Number Already Exist. Please Try again')
+                break
+            except ValueError as error:
+                print(Fore.RED + f'{error}' + Style.RESET_ALL)
+        name = input("\nEnter the student's name: ").lower()
+        
+        while True:
+            try:
+                num_subjects = int(input(f"How many subjects does {name} have? "))
+                break
+            except ValueError:
+                print('Value Error')
 
         subjects = {}        
         for hm_subjects in range(num_subjects):
@@ -210,7 +256,7 @@ def Add_Student():
         average = sum(subjects.values()) / len(subjects) #compute the average grade
         letter_grade = Grade_Letter(average) #for pass or fail
                     
-        students[name] = {"subjects": subjects, "average": average, "letter_grade": letter_grade} #nested dictionary
+        students[student_ID] = {'name': name,"subjects": subjects, "average": average, "letter_grade": letter_grade} #nested dictionary
         print(Fore.GREEN + '\nAdd Student Successful!' + Style.RESET_ALL) 
 # To Save the input Record in the csv
 def csv_record():
@@ -218,21 +264,21 @@ def csv_record():
     with open(csv_file, 'w', newline='') as Teacher_file: #new line para walang spacing
         writer = csv.writer(Teacher_file)
         
-        header = ["Name", "Subject", "Grade", "Average", "Final Grade"]# Write the header
+        header = ["Student no.","Name", "Subject", "Grade", "Average", "Final Grade"]# Write the header
         writer.writerow(header)
         
-        for name, info in students.items(): # Write student data
+        for Student_num, info in students.items(): # Write student data
             for subject, grade in info['subjects'].items():
-                writer.writerow([name, subject, grade, f"{info['average']:.1f}", info['letter_grade']]) #i used :.1f to round off the float
+                writer.writerow([Student_num,info["name"], subject, grade, f"{info['average']:.1f}", info['letter_grade']]) #i used :.1f to round off the float
 #Add student in File management
 def csv_addrecord():
     csv_file = "Teacher.csv"
     with open(csv_file, 'a', newline='') as Teacher_file: #new line para walang spacing
         writer = csv.writer(Teacher_file)
         
-        for name, info in students.items(): # Write student data
+        for Student_num, info in students.items(): # Write student data
             for subject, grade in info['subjects'].items():
-                writer.writerow([name, subject, grade, f"{info['average']:.1f}", info['letter_grade']]) #i used :.1f to round off the float
+                writer.writerow([Student_num,info["name"], subject, grade, f"{info['average']:.1f}", info['letter_grade']]) #I used :.1f to round off the float
 #to save the user and password in csv
 def csv_adminrecord():
     csv_adminfile = "admin.csv"
@@ -262,14 +308,16 @@ def restorerecord():
         csv_restorefile = csv.reader(restore_file)
         next(csv_restorefile) #skip the header
         for row in csv_restorefile: #extract the data in row
-            name = row[0]
-            subject = row[1]
-            grade = int(row[2])
-            average = float(row[3])
-            final_grade = row[4]
+            student_ID = row[0]
+            name = row[1]
+            subject = row[2]
+            grade = int(row[3])
+            average = float(row[4])
+            final_grade = row[5]
             
             # Add the data to the dictionary
             students[name] = {
+                'student_ID': student_ID,
                 'subjects': {subject : grade},
                 'average': average,
                 'letter_grade': final_grade
